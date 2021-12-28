@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 import { ThirdwebSDK } from "@3rdweb/sdk";
 import { useWeb3 } from "@3rdweb/hooks";
+import { UnsupportedChainIdError } from "@web3-react/core";
 
 import consts from "./consts.js";
 import "./App.css";
@@ -20,7 +21,7 @@ const voteModule = sdk.getVoteModule(consts.voteModuleAddress);
 
 const App = () => {
   // Use the connectWallet hook thirdweb gives us.
-  const { connectWallet, address, provider } = useWeb3();
+  const { connectWallet, address, provider, error } = useWeb3();
   console.log("👋 Address:", address);
 
   // The signer is required to sign transactions on the blockchain.
@@ -184,11 +185,24 @@ const App = () => {
     });
   }, [memberAddresses, memberTokenAmounts]);
 
+  // If user is on wrong network: Show error message
+  if (error instanceof UnsupportedChainIdError ) {
+    return (
+      <div className="unsupported-network">
+        <h2>Please connect to Rinkeby</h2>
+        <p>
+          This DApp only works on the Rinkeby network, please switch networks in your connected
+          wallet.
+        </p>
+      </div>
+    );
+  }
+
   // If user hasn't connected their wallet: Show connect wallet button
   if (!address) {
     return (
       <div className="landing">
-        <h1>Welcome to PuppyPixDAO</h1>
+        <h1>Welcome to Puppy Pix DAO</h1>
         <button onClick={() => connectWallet("injected")} className="btn-hero">
           Connect your wallet
         </button>
@@ -200,7 +214,7 @@ const App = () => {
   if (!hasClaimedNFT) {
     return (
       <div className="mint-nft">
-        <h1>Mint your free DAO Membership NFT</h1>
+        <h1>Mint your free 🐶 Puppy Pix DAO Membership NFT</h1>
         <button
           disabled={isClaiming}
           onClick={() => mintNft()}
@@ -214,8 +228,8 @@ const App = () => {
   // Show membership page.
   return (
     <div className="member-page">
-      <h1>DAO Member Page</h1>
-      <p>Congratulations on being a member</p>
+      <h1>🐶 Puppy Pix DAO Member Page</h1>
+      <p>Congratulations on being a member.</p>
       <div>
         <div>
           <h2>Member List</h2>
